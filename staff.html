@@ -9,7 +9,7 @@
 
   <style>
     .wrap {
-      max-width: 500px;
+      max-width: 520px;
       margin: 40px auto;
     }
 
@@ -20,6 +20,9 @@
 
     input {
       flex: 1;
+      min-width: 0;
+      padding: 12px;
+      font-size: 16px;
     }
 
     .user-card {
@@ -27,6 +30,11 @@
       padding: 15px;
       border: 1px solid #eee;
       border-radius: 12px;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #666;
     }
   </style>
 </head>
@@ -41,75 +49,105 @@
     <p class="subtitle">スタンプ付与管理</p>
 
     <div class="row">
-      <input id="name" class="input" placeholder="ニックネーム">
+      <input id="name" placeholder="ニックネームを入力">
       <button class="btn btn-primary" onclick="searchUser()">検索</button>
     </div>
 
-    <div id="result"></div>
+    <div id="result" class="small"></div>
 
   </div>
 
 </div>
 
 <script type="module">
-import { checkStaffAccess } from "./auth/staffAuth.js";
 import { db } from "./firebase/config.js";
 import {
   doc,
   getDoc,
   updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-checkStaffAccess();
+
 let currentUser = null;
 
-window.searchUser = async function () {
-  const name = document.getElementById("name").value;
-  const ref = doc(db, "users", name);
-  const snap = await getDoc(ref);
+/* =========================
+   ユーザー検索
+========================= */
+async function searchUser() {
+  const name = document.getElementById("name").value.trim();
+  console.log("検索:", name);
 
   const result = document.getElementById("result");
 
-  if (!snap.exists()) {
-    result.innerHTML = "<p>ユーザーが見つかりません</p>";
+  if (!name) {
+    result.innerHTML = "ニックネームを入力してください";
     return;
   }
 
-  currentUser = name;
+  try {
+    const ref = doc(db, "users", name);
+    const snap = await getDoc(ref);
 
-  const data = snap.data();
+    if (!snap.exists()) {
+      result.innerHTML = "ユーザーが見つかりません";
+      currentUser = null;
+      return;
+    }
 
-  result.innerHTML = `
-    <div class="user-card">
-      <p>👤 ${data.nickname}</p>
-      <p>スタンプ: ${data.stamps.filter(v => v === 1).length} / 7</p>
-      <button class="btn btn-primary" onclick="giveStamp()">スタンプ付与</button>
-    </div>
-  `;
+    const data = snap.data();
+    currentUser = name;
+
+    const count = (data.stamps || []).filter(v => v === 1).length;
+
+    result.innerHTML = `
+      <div class="user-card">
+        <div>👤 ${data.nickname}</div>
+        <div>スタンプ: ${count} / 7</div>
+        <button class="btn btn-primary" onclick="giveStamp()">スタンプ付与</button>
+      </div>
+    `;
+
+  } catch (e) {
+    console.error(e);
+    result.innerHTML = "エラーが発生しました";
+  }
 }
 
-window.giveStamp = async function () {
+/* =========================
+   スタンプ付与
+========================= */
+async function giveStamp() {
   if (!currentUser) return;
 
   const ref = doc(db, "users", currentUser);
   const snap = await getDoc(ref);
 
+  if (!snap.exists()) return;
+
   const data = snap.data();
-  const stamps = data.stamps;
+  const stamps = data.stamps || [];
 
-  const nextIndex = stamps.findIndex(v => v === 0);
+  const index = stamps.findIndex(v => v === 0);
 
-  if (nextIndex === -1) {
-    alert("すでにコンプリート済み");
+  if (index === -1) {
+    alert("すでにコンプリート済みです");
     return;
   }
 
-  stamps[nextIndex] = 1;
+  stamps[index] = 1;
 
   await updateDoc(ref, { stamps });
 
-  alert("スタンプ付与完了！");
-  searchUser();
+  alert("スタンプ付与しました！");
+
+  searchUser(); // 再描画
 }
+
+/* =========================
+   グローバル公開（重要）
+========================= */
+window.searchUser = searchUser;
+window.giveStamp = giveStamp;
+
 </script>
 
 </body>
