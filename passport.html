@@ -57,8 +57,7 @@
     <div class="grid" id="stampGrid"></div>
 
     <div class="secret-wrap">
-      <div class="secret" id="secret">❓</div>
-      <div class="subtitle">シークレット（6つ集めると解放）</div>
+      <div class="secret" id="secret"></div>
     </div>
 
   </div>
@@ -132,10 +131,10 @@ function render() {
 
   /* シークレット解放条件 */
   if (count >= 6) {
-    secret.textContent = "✨";
+    secret.textContent = "❓";
     secret.classList.add("open");
   } else {
-    secret.textContent = "❓";
+    secret.textContent = "";
     secret.classList.remove("open");
   }
 }
