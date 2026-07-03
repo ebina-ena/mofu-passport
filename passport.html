@@ -6,68 +6,103 @@
   <title>MOFU Passport</title>
 
   <link rel="stylesheet" href="assets/css/design-system.css">
+
+  <style>
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .stamp {
+      font-size: 40px;
+      opacity: 0.2;
+      transition: 0.2s;
+    }
+
+    .stamp.active {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .secret-wrap {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .secret {
+      font-size: 50px;
+      opacity: 0.2;
+      transition: 0.3s;
+    }
+
+    .secret.open {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+  </style>
 </head>
 
 <body>
 
 <div class="container">
-  <div class="card" id="card">
+
+  <div class="card">
 
     <h1 class="title">MOFU Passport</h1>
-    <p class="subtitle" id="userName">---</p>
+    <p class="subtitle" id="userName"></p>
 
     <div class="grid" id="stampGrid"></div>
 
-    <div class="progress-wrap">
-      <p id="progressText">0 / 7</p>
-      <div class="bar">
-        <div id="bar"></div>
-      </div>
+    <div class="secret-wrap">
+      <div class="secret" id="secret">❓</div>
+      <div class="subtitle">シークレット（6つ集めると解放）</div>
     </div>
 
   </div>
+
 </div>
 
 <script type="module">
 import { db } from "./firebase/config.js";
 import {
   doc,
-  onSnapshot,
-  updateDoc,
-  getDoc
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const user = JSON.parse(localStorage.getItem("mofu_user"));
 const nickname = user?.nickname;
 
+const animals = ["🐶","🐰","🐻","🦊","🦁","🐑"];
+
 const grid = document.getElementById("stampGrid");
+const secret = document.getElementById("secret");
 const userName = document.getElementById("userName");
-const progressText = document.getElementById("progressText");
-const bar = document.getElementById("bar");
-const card = document.getElementById("card");
 
 let stamps = [];
 
-// 表示
-if (nickname) {
-  userName.textContent = `${nickname} さん`;
-}
+userName.textContent = nickname ? ${nickname} さん : "";
 
-// グリッド生成（1回だけ）
+/* グリッド生成 */
 function createGrid() {
   grid.innerHTML = "";
 
-  for (let i = 0; i < 7; i++) {
-    const el = document.createElement("div");
-    el.className = "stamp";
-    el.textContent = i === 6 ? "⭐" : "🍴";
+  const labels = ["いぬ","うさぎ","くま","きつね","ライオン","ひつじ"];
 
+  labels.forEach((label, i) => {
+    const el = document.createElement("div");
+    el.innerHTML = `
+      <div class="stamp" id="s${i}">${animals[i]}</div>
+      <div style="font-size:12px;">${label}</div>
+    `;
     grid.appendChild(el);
-  }
+  });
 }
 
-// リアルタイム監視（ここが核心）
-function listenStamps() {
+/* リアルタイム監視 */
+function listen() {
   const ref = doc(db, "users", nickname);
 
   onSnapshot(ref, (snap) => {
@@ -78,14 +113,15 @@ function listenStamps() {
   });
 }
 
-// 描画
+/* 描画 */
 function render() {
-  const items = document.querySelectorAll(".stamp");
-
   let count = 0;
 
-  items.forEach((el, i) => {
-    if (stamps[i] === 1) {
+  stamps.forEach((v, i) => {
+    const el = document.getElementById("s" + i);
+    if (!el) return;
+
+    if (v === 1) {
       el.classList.add("active");
       count++;
     } else {
@@ -93,30 +129,18 @@ function render() {
     }
   });
 
-  progressText.textContent = `${count} / 7`;
-  bar.style.width = `${(count / 7) * 100}%`;
-
-  if (count === 7) {
-    showComplete();
+  /* シークレット解放条件 */
+  if (count >= 6) {
+    secret.textContent = "✨";
+    secret.classList.add("open");
+  } else {
+    secret.textContent = "❓";
+    secret.classList.remove("open");
   }
 }
 
-// 完了演出
-function showComplete() {
-  if (document.querySelector(".complete")) return;
-
-  card.innerHTML = `
-    <div class="complete">
-      <h1>🎉 COMPLETE</h1>
-      <p>MOFU Passport達成！</p>
-      <div style="font-size:50px;">🐾✨</div>
-    </div>
-  `;
-}
-
-// 初期化
 createGrid();
-listenStamps();
+listen();
 
 </script>
 
