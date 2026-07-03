@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MOFU Passport</title>
+
+  <link rel="stylesheet" href="assets/css/design-system.css">
+
+  <style>
+    .stamp {
+      font-size: 28px;
+      opacity: 0.25;
+      transition: 0.2s;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .stamp.active {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .progress-wrap {
+      margin-top: 20px;
+    }
+
+    .bar {
+      height: 10px;
+      background: #eee;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar > div {
+      height: 100%;
+      width: 0%;
+      background: #AEE6D8;
+      transition: 0.3s;
+    }
+
+    .complete {
+      text-align: center;
+      padding: 30px 10px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="card" id="card">
+
+    <h1 class="title">MOFU Passport</h1>
+    <p class="subtitle" id="userName">---</p>
+
+    <!-- スタンプ -->
+    <div class="grid" id="stampGrid"></div>
+
+    <!-- 進捗 -->
+    <div class="progress-wrap">
+      <p id="progressText">0 / 7</p>
+      <div class="bar">
+        <div id="bar"></div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<script type="module">
+import { getStamps, addStamp } from "./firebase/stamps.js";
+
+// ユーザー取得
+const user = JSON.parse(localStorage.getItem("mofu_user"));
+const nickname = user?.nickname;
+
+const grid = document.getElementById("stampGrid");
+const userName = document.getElementById("userName");
+const progressText = document.getElementById("progressText");
+const bar = document.getElementById("bar");
+const card = document.getElementById("card");
+
+let stamps = [];
+
+// 初期表示
+if (nickname) {
+  userName.textContent = `${nickname} さん`;
+}
+
+// スタンプ初期描画
+function createGrid() {
+  grid.innerHTML = "";
+
+  for (let i = 0; i < 7; i++) {
+    const el = document.createElement("div");
+    el.className = "stamp";
+    el.textContent = i === 6 ? "⭐" : "🍴";
+
+    el.addEventListener("click", async () => {
+      stamps = await addStamp(nickname, i);
+      render();
+    });
+
+    grid.appendChild(el);
+  }
+}
+
+// 描画
+function render() {
+  const items = document.querySelectorAll(".stamp");
+
+  let count = 0;
+
+  items.forEach((el, i) => {
+    if (stamps[i] === 1) {
+      el.classList.add("active");
+      count++;
+    } else {
+      el.classList.remove("active");
+    }
+  });
+
+  progressText.textContent = `${count} / 7`;
+  bar.style.width = `${(count / 7) * 100}%`;
+
+  if (count === 7) {
+    setTimeout(showComplete, 300);
+  }
+}
+
+// 完了演出
+function showComplete() {
+  card.innerHTML = `
+    <div class="complete">
+      <h1>🎉 COMPLETE</h1>
+      <p>MOFU Passport達成！</p>
+      <div style="font-size:50px;">🐾✨</div>
+      <button onclick="location.reload()">もう一度見る</button>
+    </div>
+  `;
+}
+
+// Firestore読み込み
+async function load() {
+  const { getStamps } = await import("./firebase/stamps.js");
+  stamps = await getStamps(nickname);
+  render();
+}
+
+// 起動
+createGrid();
+load();
+
+</script>
+
+</body>
+</html>

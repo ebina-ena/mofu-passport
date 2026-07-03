@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOFU Passport - Login</title>
+
+  <link rel="stylesheet" href="assets/css/design-system.css">
+
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+    }
+
+    .space {
+      height: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="card login-card fade-in">
+
+      <h1 class="title">MOFU Passport</h1>
+      <p class="subtitle">ニックネームとPINでログイン</p>
+
+      <div class="space"></div>
+
+      <input id="nickname" class="input" type="text" placeholder="ニックネーム">
+
+      <div class="space"></div>
+
+      <input id="pin" class="input" type="password" placeholder="4桁PIN" maxlength="4">
+
+      <div class="space"></div>
+
+      <button class="btn btn-primary" onclick="login()">
+        ログイン / 登録
+      </button>
+
+      <div class="space"></div>
+
+      <p id="message" class="subtitle"></p>
+
+    </div>
+
+  </div>
+
+<script type="module">
+import { registerUser, loginUser } from "./firebase/auth.js";
+async function login() {
+  const nickname = document.getElementById("nickname").value.trim();
+  const pin = document.getElementById("pin").value.trim();
+  const message = document.getElementById("message");
+
+  if (!nickname || !pin) {
+    message.textContent = "入力してください";
+    return;
+  }
+
+  try {
+    let user;
+
+    try {
+      // まずログイン試行
+      user = await loginUser(nickname, pin);
+    } catch (e) {
+      // ダメなら新規登録
+      user = await registerUser(nickname, pin);
+    }
+
+    localStorage.setItem("mofu_user", JSON.stringify(user));
+
+    message.textContent = "ログイン成功";
+
+    setTimeout(() => {
+      window.location.href = "passport.html";
+    }, 800);
+
+  } catch (err) {
+    message.textContent = err.message;
+  }
+}
+window.login = login;
+</script>
+
+</body>
+</html>

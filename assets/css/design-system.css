@@ -1,193 +1,161 @@
-/* =========================================
-   MOFU DESIGN SYSTEM (MDS)
-   Version 1.0
-   MOFU Passport Studio
-========================================= */
+/* =========================
+   MOFU DESIGN SYSTEM v1.0
+   Event Production Grade
+========================= */
 
-/* ===== Root Variables ===== */
 :root {
-  /* Colors */
-  --color-bg: #FFF8F2;
-  --color-surface: #FFFFFF;
-  --color-primary: #E8D7C3;
-  --color-accent: #AEE6D8;
-  --color-accent2: #BFDFFF;
-  --color-success: #7BBF91;
-  --color-gold: #E5C76B;
-  --color-text: #4B4038;
-
-  /* Radius */
-  --radius-sm: 12px;
-  --radius-md: 18px;
-  --radius-lg: 24px;
-
-  /* Shadow */
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
-  --shadow-md: 0 6px 20px rgba(0,0,0,0.08);
-  --shadow-lg: 0 12px 30px rgba(0,0,0,0.12);
-
-  /* Font */
-  --font-main: "Noto Sans JP", sans-serif;
-  --font-en: "Poppins", sans-serif;
-
-  /* Spacing */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 24px;
-  --space-6: 32px;
-  --space-7: 48px;
-
-  /* Animation */
-  --transition-fast: 0.15s ease;
-  --transition-base: 0.25s ease;
-  --transition-slow: 0.4s ease;
+  --bg: #FAFAFA;
+  --card: #FFFFFF;
+  --text: #2B2B2B;
+  --sub: #6B6B6B;
+  --primary: #AEE6D8;
+  --accent: #E5C76B;
+  --border: #EDEDED;
 }
 
-/* ===== Base ===== */
 * {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
 }
 
 body {
-  font-family: var(--font-main);
-  background: var(--color-bg);
-  color: var(--color-text);
+  font-family: "Helvetica Neue", "Noto Sans JP", sans-serif;
+  background: linear-gradient(180deg, #FAFAFA, #F5F7F6);
+  color: var(--text);
   line-height: 1.6;
 }
 
-/* ===== Container ===== */
+/* コンテナ */
 .container {
-  width: 100%;
-  max-width: 430px;
+  max-width: 420px;
   margin: 0 auto;
-  padding: var(--space-5);
+  padding: 20px;
 }
 
-/* ===== Card ===== */
+/* カード */
 .card {
-  background: var(--color-surface);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  padding: var(--space-5);
-  transition: var(--transition-base);
+  background: var(--card);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  border: 1px solid var(--border);
 }
 
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+/* タイトル */
+.title {
+  font-size: 22px;
+  font-weight: bold;
+  margin-bottom: 6px;
 }
 
-/* ===== Button ===== */
+/* サブ */
+.subtitle {
+  font-size: 13px;
+  color: var(--sub);
+}
+
+/* ボタン */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 20px;
-  border-radius: var(--radius-md);
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
   border: none;
   cursor: pointer;
-  font-weight: 600;
-  transition: var(--transition-base);
-  width: 100%;
+  font-weight: bold;
+  transition: 0.2s;
 }
 
 .btn-primary {
-  background: var(--color-primary);
-  color: var(--color-text);
+  background: var(--primary);
+  color: #1a1a1a;
 }
 
 .btn-primary:hover {
-  transform: scale(1.02);
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
-.btn-accent {
-  background: var(--color-accent);
-  color: var(--color-text);
-}
-
-/* ===== Input ===== */
+/* 入力 */
 .input {
   width: 100%;
-  padding: 14px;
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(0,0,0,0.1);
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
   outline: none;
-  transition: var(--transition-base);
-  background: white;
-}
-
-.input:focus {
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(174,230,216,0.3);
-}
-
-/* ===== Title ===== */
-.title {
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: var(--space-4);
-}
-
-.subtitle {
   font-size: 14px;
-  opacity: 0.7;
 }
 
-/* ===== Grid (Passport) ===== */
-.grid-3 {
+/* スタンプ */
+.stamp {
+  font-size: 28px;
+  opacity: 0.25;
+  transition: 0.2s;
+  cursor: pointer;
+  user-select: none;
+}
+
+.stamp.active {
+  opacity: 1;
+  transform: scale(1.15);
+}
+
+/* グリッド */
+.grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-3);
+  gap: 12px;
+  text-align: center;
+  margin-top: 20px;
 }
 
-.grid-item {
-  aspect-ratio: 1;
-  background: white;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
+/* プログレスバー */
+.progress-wrap {
+  margin-top: 20px;
 }
 
-/* ===== Badge ===== */
-.badge {
-  display: inline-block;
-  padding: 4px 10px;
+.bar {
+  height: 10px;
+  background: #eee;
   border-radius: 999px;
-  font-size: 12px;
-  background: var(--color-accent2);
+  overflow: hidden;
 }
 
-/* ===== Animation ===== */
+.bar > div {
+  height: 100%;
+  width: 0%;
+  background: var(--primary);
+  transition: 0.3s;
+}
+
+/* 完了演出 */
+.complete {
+  text-align: center;
+  padding: 30px 10px;
+  animation: pop 0.4s ease;
+}
+
 @keyframes pop {
-  0% { transform: scale(0.8); opacity: 0; }
+  0% { transform: scale(0.9); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
 
-.pop {
-  animation: pop 0.3s ease;
+/* グロー演出 */
+.glow {
+  animation: glow 1.5s infinite alternate;
 }
 
-/* ===== Fade In ===== */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes glow {
+  from { box-shadow: 0 0 5px rgba(174,230,216,0.3); }
+  to { box-shadow: 0 0 20px rgba(174,230,216,0.8); }
 }
 
-.fade-in {
-  animation: fadeIn 0.4s ease;
-}
-
-/* ===== Responsive ===== */
-@media (max-width: 430px) {
+/* レスポンシブ */
+@media (max-width: 480px) {
   .container {
-    padding: var(--space-4);
+    padding: 12px;
+  }
+
+  .card {
+    padding: 18px;
   }
 }

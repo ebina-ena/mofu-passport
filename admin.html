@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MOFU Admin Dashboard</title>
+
+  <link rel="stylesheet" href="assets/css/design-system.css">
+
+  <style>
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .box {
+      background: white;
+      padding: 16px;
+      border-radius: 16px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+      text-align: center;
+    }
+
+    .big {
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      font-size: 13px;
+      text-align: left;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="card">
+
+    <h1 class="title">MOFU Admin</h1>
+    <p class="subtitle">イベント管理ダッシュボード</p>
+
+    <div class="grid">
+      <div class="box">
+        <div class="big" id="totalUsers">0</div>
+        <div class="subtitle">総ユーザー</div>
+      </div>
+
+      <div class="box">
+        <div class="big" id="completed">0</div>
+        <div class="subtitle">コンプリート</div>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ニックネーム</th>
+          <th>進捗</th>
+        </tr>
+      </thead>
+      <tbody id="userTable"></tbody>
+    </table>
+
+  </div>
+
+</div>
+
+<script type="module">
+import { checkStaffAccess } from "./auth/staffAuth.js";
+import { db } from "./firebase/config.js";
+import {
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+const usersRef = collection(db, "users");
+checkStaffAccess();
+async function load() {
+  const snap = await getDocs(usersRef);
+
+  let total = 0;
+  let completed = 0;
+
+  const table = document.getElementById("userTable");
+
+  table.innerHTML = "";
+
+  snap.forEach(doc => {
+    const data = doc.data();
+    total++;
+
+    const count = data.stamps.filter(v => v === 1).length;
+
+    if (count === 7) completed++;
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${data.nickname}</td>
+      <td>${count} / 7</td>
+    `;
+
+    table.appendChild(row);
+  });
+
+  document.getElementById("totalUsers").textContent = total;
+  document.getElementById("completed").textContent = completed;
+}
+
+load();
+</script>
+
+</body>
+</html>

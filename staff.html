@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MOFU Staff Panel</title>
+
+  <link rel="stylesheet" href="assets/css/design-system.css">
+
+  <style>
+    .wrap {
+      max-width: 500px;
+      margin: 40px auto;
+    }
+
+    .row {
+      display: flex;
+      gap: 10px;
+    }
+
+    input {
+      flex: 1;
+    }
+
+    .user-card {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #eee;
+      border-radius: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container wrap">
+
+  <div class="card">
+
+    <h1 class="title">Staff Panel</h1>
+    <p class="subtitle">スタンプ付与管理</p>
+
+    <div class="row">
+      <input id="name" class="input" placeholder="ニックネーム">
+      <button class="btn btn-primary" onclick="searchUser()">検索</button>
+    </div>
+
+    <div id="result"></div>
+
+  </div>
+
+</div>
+
+<script type="module">
+import { checkStaffAccess } from "./auth/staffAuth.js";
+import { db } from "./firebase/config.js";
+import {
+  doc,
+  getDoc,
+  updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+checkStaffAccess();
+let currentUser = null;
+
+window.searchUser = async function () {
+  const name = document.getElementById("name").value;
+  const ref = doc(db, "users", name);
+  const snap = await getDoc(ref);
+
+  const result = document.getElementById("result");
+
+  if (!snap.exists()) {
+    result.innerHTML = "<p>ユーザーが見つかりません</p>";
+    return;
+  }
+
+  currentUser = name;
+
+  const data = snap.data();
+
+  result.innerHTML = `
+    <div class="user-card">
+      <p>👤 ${data.nickname}</p>
+      <p>スタンプ: ${data.stamps.filter(v => v === 1).length} / 7</p>
+      <button class="btn btn-primary" onclick="giveStamp()">スタンプ付与</button>
+    </div>
+  `;
+}
+
+window.giveStamp = async function () {
+  if (!currentUser) return;
+
+  const ref = doc(db, "users", currentUser);
+  const snap = await getDoc(ref);
+
+  const data = snap.data();
+  const stamps = data.stamps;
+
+  const nextIndex = stamps.findIndex(v => v === 0);
+
+  if (nextIndex === -1) {
+    alert("すでにコンプリート済み");
+    return;
+  }
+
+  stamps[nextIndex] = 1;
+
+  await updateDoc(ref, { stamps });
+
+  alert("スタンプ付与完了！");
+  searchUser();
+}
+</script>
+
+</body>
+</html>
