@@ -13,28 +13,57 @@
       margin: 40px auto;
     }
 
+    /* 横並び崩れ防止 */
     .row {
       display: flex;
       gap: 10px;
+      align-items: center;
     }
 
-    input {
+    /* 入力：主役 */
+    .row input {
       flex: 1;
       min-width: 0;
       padding: 12px;
       font-size: 16px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      outline: none;
     }
 
+    /* ボタン：固定サイズ（重要） */
+    .row button {
+      flex: 0 0 auto;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    /* ユーザーカード */
     .user-card {
       margin-top: 20px;
       padding: 15px;
       border: 1px solid #eee;
       border-radius: 12px;
+      background: #fff;
     }
 
     .small {
       font-size: 13px;
       color: #666;
+    }
+
+    /* スタンプボタンだけ強調 */
+    .btn-primary {
+      background: #AEE6D8;
+      color: #1a1a1a;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.85;
     }
   </style>
 </head>
@@ -50,7 +79,7 @@
 
     <div class="row">
       <input id="name" placeholder="ニックネームを入力">
-      <button class="btn btn-primary" onclick="searchUser()">検索</button>
+      <button class="btn-primary" onclick="searchUser()">検索</button>
     </div>
 
     <div id="result" class="small"></div>
@@ -70,7 +99,7 @@ import {
 let currentUser = null;
 
 /* =========================
-   ユーザー検索
+   検索
 ========================= */
 async function searchUser() {
   const name = document.getElementById("name").value.trim();
@@ -102,7 +131,7 @@ async function searchUser() {
       <div class="user-card">
         <div>👤 ${data.nickname}</div>
         <div>スタンプ: ${count} / 7</div>
-        <button class="btn btn-primary" onclick="giveStamp()">スタンプ付与</button>
+        <button class="btn-primary" onclick="giveStamp()">スタンプ付与</button>
       </div>
     `;
 
@@ -139,11 +168,11 @@ async function giveStamp() {
 
   alert("スタンプ付与しました！");
 
-  searchUser(); // 再描画
+  searchUser();
 }
 
 /* =========================
-   グローバル公開（重要）
+   グローバル公開
 ========================= */
 window.searchUser = searchUser;
 window.giveStamp = giveStamp;
